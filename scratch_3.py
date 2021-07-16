@@ -121,8 +121,8 @@ class Bounty(object):
             portafoliom_assets = []  # names
             portafoliom_free = []
             portafoliom_borrowed = []
-            '''
             portafoliom_locked = []
+            '''
             portafoliom_dollars = []  # free $aprox.
             portafoliom_convert = []  # borrow $apx.
             '''
@@ -138,7 +138,7 @@ class Bounty(object):
                             m_assets["free"])
                     portafoliom_borrowed.append(
                             m_assets["borrowed"])
-                    portafolios_lckd.append(
+                    portafoliom_lckd.append(
                             m_assets["locked"])
 
             self.margin_c = portafoliom  # raw dict List!
@@ -150,7 +150,7 @@ class Bounty(object):
                         portafoliom_borrowed,
                         self.convertUs(portafoliom_borrowed,
                                        portafoliom_assets),
-                        portafolios_lckd,
+                        portafoliom_lckd,
 
                         self.convertUs(
                             self.sumAssets(
