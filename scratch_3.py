@@ -18,7 +18,7 @@ bount_booklet = {}  # to work about.
 
 class Bounty(object):
 
-    def __init__(self, a, client):
+    def __init__(self, client, a):
 
         self.c = client
         # TODO create a changing token method.
@@ -37,9 +37,12 @@ class Bounty(object):
                        "margin_c": [],  #list.
                        "margin_i": {}}  # idk.
 
-        self.getAssets(self.c, spot=True,
+        self.getAssets(self.c, #spot=True,
+                       margin_c=True,
                        )
-
+        self.getAssets(self.c, spot=True,
+                       #margin_c=True,
+                       )
 
 
     def convertUs(self, amounts, names):
@@ -59,7 +62,7 @@ class Bounty(object):
             yeah = lista_ass + "USDT"
             if lista_ass != ("USDT" or "BUSD"):
                 lista_convert.append(my_precision(
-                    float(amounts[i]) /
+                    float(amounts[i]) *
                     float(client.get_symbol_ticker(
                         symbol=yeah)["price"]), 4))
             elif "USD" in lista_ass:
@@ -68,13 +71,17 @@ class Bounty(object):
                     my_precision(float(amounts[i]), 4))
         aux = []
         for i in range(len(lista_convert)):
-            aux.append("("+str(lista_convert)+")")
+            if float(lista_convert[i])*1000 == 0:
+                aux.append(None)
+            else:
+                aux.append("("+str(lista_convert[i])+")")
         return  aux
 
     def getAssets(self, cli, spot=False,
                   margin_c=False, margin_i=False):
         if  spot:
             spot = cli.get_account()  # raw dict.
+            # TODO this doesn't work ↑
             spot_dlist = spot["balances"]  # '' list.
             portafolios = []  # assets' dictionary list
             portafolios_assets = []  # just names.
@@ -88,33 +95,37 @@ class Bounty(object):
                     portafolios.append(spot_dlist[i])
                     portafolios_assets.append(
                         spot_dlist[i]["asset"])
-
+                    portafolios_free.append(
+                        spot_dlist[i]["free"])
+                    portafolios_lckd.append(
+                        spot_dlist[i]["locked"])
+            '''
             # [[assets], [free], [$], [lck], [$Total]]
             lista_portafolio_spot = []
             lista_portafoliom_crs = []
             # ---
             lista_protafoliom_iso = []
             # ↑ [base, quot, x, [], [], ] per pos.
-
+            '''
             self.spot = portafolios # raw dict. List!
             self.portafolio["spot"] = [
                                     portafolios_assets,
                                     portafolios_free,
-                                    self.convertUs(
-                                        portafolios_free,
-                                        portafolios_assets),
+
                                     portafolios_lckd,]
                 # Done list. Let's add Total and $ aprox.
-            self.portafolio["spot"].append(
+            self.portafolio["spot"].append(  # ←(total)
                                     self.sumAssets(
                                         portafolios_free,
                                         portafolios_lckd))
-            self.portafolio["spot"].append(
-                self.convertUs(self.portafolio["spot"][-1]))
+
             # Done. We have self.portafolio["spot"] !!
 
+            self.data_spot = self.dataWallet(
+                                self.portafolio["spot"])
+
         if  margin_c:
-            margin_d = client.get_margin_account()
+            margin_d = cli.get_margin_account()
             m_assets = margin_d["userAssets"]  # CROSS
 
             portafoliom = []  # raw list of assets account info.
@@ -134,31 +145,34 @@ class Bounty(object):
                     portafoliom_assets.append(
                             m_assets[i]["asset"])  # names.
 
+
                     portafoliom_free.append(
-                            m_assets["free"])
+                            m_assets[i]["free"])
                     portafoliom_borrowed.append(
-                            m_assets["borrowed"])
-                    portafoliom_lckd.append(
-                            m_assets["locked"])
+                            m_assets[i]["borrowed"])
+                    portafoliom_locked.append(
+                            m_assets[i]["locked"])
 
             self.margin_c = portafoliom  # raw dict List!
             self.portafolio["margin_c"] = [
                         portafoliom_assets,  # names
                         self.convertUs(portafoliom_free,
-                                       portafoliom_assets)
+                                       portafoliom_assets),
                         portafoliom_free,
                         portafoliom_borrowed,
                         self.convertUs(portafoliom_borrowed,
                                        portafoliom_assets),
-                        portafoliom_lckd,
+                        portafoliom_locked,
 
                         self.convertUs(
                             self.sumAssets(
-                                portafoliom_free,
-                                portafoliom_borrowed),
+                                    self.sumAssets(portafoliom_free,
+                                                portafoliom_borrowed),
+                                    portafoliom_locked),
                             portafoliom_assets),
                          ]
-
+            self.data_cross = self.dataWallet(
+                                self.portafolio["margin_c"])
 
         # print(portafolios)
 
@@ -172,12 +186,40 @@ class Bounty(object):
         return aux  # a list.
 
 
-    def printWallet(self, cual="All"):
+    def dataWallet(self, lista,
+                    #cual="All",
+                    ):
+        if len(lista) == 4:
+            cloumna = lista[0]
+            lista_aux = lista[1:]
+            top_array = np.array(lista_aux)
+            self.ta = np.array(self.portafolio["spot"][0]
+                    )
+            index = [
+                    'free', 'locked',
+                    'Total:',]
+            pan = pd.DataFrame(top_array,
+                               columns=lista[0],
+                               index=index)
+            return pan
+        #else:
+        if len(lista) == 7:
+            margin_ar = np.array(lista[1:])
+
+            index = [
+                'aprox.$', 'free', 'borrow',
+                'aprox.$', 'locked', #'Total:',
+                'Total:$']
+            pan = pd.DataFrame(margin_ar,
+                        columns=lista[0],
+                        index= index)
+            return pan
+        #if len(lista) ==
+        #else:
+            # error! Message.
 
 
-
-
-    class Talent:
+    #class Talent:
 
 
     class Quest:
@@ -226,20 +268,28 @@ class Bounty(object):
             self.un_lckd = self.undertaker["locked"]
             self.vs_lckd = self.vs["locked"]
 
-    def printPanda(self, ):
+    def printPanda(self, cual="All"):
 
-        margin_array = np.array([  # portafoliom_assets,
-            portafoliom_dollars,
-            portafoliom_free,
-            portafoliom_borrowed,
-            portafoliom_convert,
-            portafoliom_locked])
+        if cual == "spot":
+            print("\nSpot, portafolio:")
+            print(#self.data_spot
+                #self.top_array
+                  self.portafolio
+                  )
 
-        margin_pan = pd.DataFrame(margin_array,
-                                  columns=portafoliom_assets,
-                                  index=['aprox.$', 'free',
-                                         'borrow', 'aprox.$',
-                                         'locked'])
+        if cual == "margin_c":
+            print("\nMargin. (Cross), portafolio:")
+            print(self.data_cross)
+
+        if cual == "margin_i":
+            print("\nMargin.ISOlated, portafolio:")
+            #print(self.data_misol)
+
+        elif cual == "All":
+            self.printPanda(cual="spot")
+            self.printPanda(cual="margin_c")
+            #self.printPanda(cual="margin_i")
+
 
     def cleanChain(self, cross):
 
@@ -306,9 +356,14 @@ lista.append(hunter.Quest(margin=True, iso = True))
 
 print(lista[0].pair)
 print(hunter.c)
-'''
+
 print(client.get_asset_balance("USDT"))
 # /\  It's Spot !
 #   hunter.c.get_asset_balance("USDT")
 print(client.get_account())
 margin_d = client.get_margin_account()
+'''
+#print(hunter.c)
+hunter.printPanda(cual="margin_c"
+                  )
+print(hunter.ta)

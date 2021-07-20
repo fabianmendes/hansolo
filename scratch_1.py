@@ -32,7 +32,7 @@ class Bounty(object):
     class Quest:
 
         def __init__(self,
-                     rawdata,  #dictionary.
+                     #rawdata,  #dictionary.
                      # ↑ portafoliom_iso[i]
 
                      asset = "ATOM",
@@ -47,7 +47,7 @@ class Bounty(object):
             else:
                 m = ""
                 isol = ""
-
+'''
             #TODO: Curate all this next
             #  because is for Margin only!
             self.pair = rawdata["symbol"]
@@ -72,7 +72,7 @@ class Bounty(object):
 
             self.un_lckd = self.undertaker["locked"]
             self.vs_lckd = self.vs["locked"]
-
+'''
             
 
 hunter = Bounty(client, ttaapio)
@@ -115,15 +115,16 @@ for i in range(len(portafoliom_assets)):
     	portafoliom[i]["borrowed"])
     portafoliom_locked.append(
 	    portafoliom[i]["locked"])
-    #---
+    '''#---
     print(portafoliom_assets)
     print(portafoliom_assets[i])
     print(portafoliom[i])
     lista.append(hunter.
-                 Quest(portafoliom[i],
+                 Quest(#portafoliom[i],
                        margin=True, iso=True))
-    print(lista[-1].pair)
+    #print(lista[-1].pair)
     #print(hunter.c)
+    '''
     #_____________________
     # TODO esta parte no hara falta para el method.
     # Pero si hara falta el par, que es 'symbol'
@@ -173,5 +174,3 @@ print(margin_pan)
 print(portafoliom_assets)
 print(margin_array_iso)
 '''
-
- 
