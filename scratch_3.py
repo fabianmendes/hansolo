@@ -274,7 +274,7 @@ class Bounty(object):
             print("\nSpot, portafolio:")
             print(#self.data_spot
                 #self.top_array
-                  self.portafolio
+                  pd.DataFrame(self.portafolio["spot"]).T
                   )
 
         if cual == "margin_c":
@@ -364,6 +364,6 @@ print(client.get_account())
 margin_d = client.get_margin_account()
 '''
 #print(hunter.c)
-hunter.printPanda(cual="margin_c"
+hunter.printPanda(#cual="margin_c"
                   )
 print(hunter.ta)
